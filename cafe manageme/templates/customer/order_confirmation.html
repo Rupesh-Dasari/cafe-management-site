@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation - Café Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle fa-4x text-success"></i>
+                </div>
+                <h2 class="text-success mb-3">Order Placed Successfully!</h2>
+                <p class="lead">Thank you for your order, {{ order.customer_name }}!</p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5>Order Details</h5>
+                                <p><strong>Order ID:</strong> #{{ order.id }}</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="badge bg-warning">{{ order.status.title() }}</span>
+                                </p>
+                                <p><strong>Total Amount:</strong> 
+                                    <span class="text-success h5">${{ "%.2f"|format(order.total_amount) }}</span>
+                                </p>
+                                <p><strong>Order Time:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5>Items Ordered</h5>
+                                <ul class="list-unstyled">
+                                    {% for item in order.order_items %}
+                                    <li class="d-flex justify-content-between">
+                                        <span>{{ item.quantity }}x {{ item.menu_item.name }}</span>
+                                        <span>${{ "%.2f"|format(item.price * item.quantity) }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Your order is being prepared. You can track its status using Order ID #{{ order.id }}.
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('track_order') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-search"></i> Track This Order
+                    </a>
+                    <a href="{{ url_for('customer_menu') }}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-book-open"></i> View Menu
+                    </a>
+                    <a href="{{ url_for('place_order') }}" class="btn btn-outline-success">
+                        <i class="fas fa-plus"></i> Place Another Order
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

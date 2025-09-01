@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Place Order - Café Management System{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4"><i class="fas fa-shopping-cart"></i> Place Your Order</h2>
+
+<form method="POST" id="orderForm">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Customer Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="customer_name" class="form-label">Name *</label>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="customer_phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="customer_phone" name="customer_phone">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu Items -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-utensils"></i> Select Items</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Category Filter -->
+                    <div class="mb-3">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" onclick="filterItems('all')">All</button>
+                            {% for category in categories %}
+                                <button type="button" class="btn btn-outline-secondary" onclick="filterItems('{{ category }}')">{{ category }}</button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Menu Items -->
+                    <div class="row">
+                        {% for item in menu_items %}
+                        <div class="col-md-6 mb-3 menu-item" data-category="{{ item.category }}" id="item-{{ item.id }}">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="card-title">{{ item.name }}</h6>
+                                            <p class="card-text small text-muted">{{ item.description }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <strong class="text-success">${{ "%.2f"|format(item.price) }}</strong>
+                                                <div class="quantity-control">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                            data-action="decrease" 
+                                                            data-item-id="{{ item.id }}">-</button>
+                                                    <input type="number" class="form-control form-control-sm mx-2" 
+                                                           style="width: 60px; display: inline-block;" 
+                                                           id="quantity_{{ item.id }}" 
+                                                           name="quantity_{{ item.id }}" 
+                                                           value="0" min="0" max="50"
+                                                           data-price="{{ item.price }}"
+                                                           data-name="{{ item.name }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                            data-action="increase" 
+                                                            data-item-id="{{ item.id }}">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header">
+                    <h5><i class="fas fa-receipt"></i> Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div id="order-summary">
+                        <p class="text-muted text-center">No items selected</p>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Total: </strong>
+                        <strong id="total-amount" class="text-success">$0.00</strong>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 mt-3" id="place-order-btn" disabled>
+                        <i class="fas fa-check"></i> Place Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterItems(category) {
+    const items = document.querySelectorAll('.menu-item');
+    const buttons = document.querySelectorAll('.btn-group .btn');
+    
+    // Update active button
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Filter items
+    items.forEach(item => {
+        if (category === 'all' || item.dataset.category === category) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function increaseQuantity(itemId) {
+    const input = document.getElementById('quantity_' + itemId);
+    if (input) {
+        input.value = parseInt(input.value) + 1;
+        updateTotal();
+    }
+}
+
+function decreaseQuantity(itemId) {
+    const input = document.getElementById('quantity_' + itemId);
+    if (input && parseInt(input.value) > 0) {
+        input.value = parseInt(input.value) - 1;
+        updateTotal();
+    }
+}
+
+function updateTotal() {
+    let total = 0;
+    let itemCount = 0;
+    const summaryDiv = document.getElementById('order-summary');
+    const totalDiv = document.getElementById('total-amount');
+    const placeOrderBtn = document.getElementById('place-order-btn');
+    
+    let summaryHTML = '';
+    
+    // Get all quantity inputs
+    const quantityInputs = document.querySelectorAll('input[name^="quantity_"]');
+    
+    quantityInputs.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        
+        if (quantity > 0) {
+            const price = parseFloat(input.getAttribute('data-price'));
+            const name = input.getAttribute('data-name');
+            const itemTotal = quantity * price;
+            
+            total += itemTotal;
+            itemCount += quantity;
+            
+            summaryHTML += '<div class="d-flex justify-content-between mb-2">';
+            summaryHTML += '<span>' + quantity + 'x ' + name + '</span>';
+            summaryHTML += '<span>$' + itemTotal.toFixed(2) + '</span>';
+            summaryHTML += '</div>';
+        }
+    });
+    
+    if (itemCount === 0) {
+        summaryHTML = '<p class="text-muted text-center">No items selected</p>';
+        placeOrderBtn.disabled = true;
+    } else {
+        placeOrderBtn.disabled = false;
+    }
+    
+    summaryDiv.innerHTML = summaryHTML;
+    totalDiv.textContent = '$' + total.toFixed(2);
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateTotal();
+    
+    // Add event listeners to all quantity inputs
+    const quantityInputs = document.querySelectorAll('input[name^="quantity_"]');
+    quantityInputs.forEach(input => {
+        input.addEventListener('change', updateTotal);
+    });
+});
+</script>
+{% endblock %}

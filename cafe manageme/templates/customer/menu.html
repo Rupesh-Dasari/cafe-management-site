@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Menu - Café Management System{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h2><i class="fas fa-book-open"></i> Our Menu</h2>
+    <p class="lead">Discover our delicious selection of fresh coffee, tea, and food</p>
+</div>
+
+<!-- Category Filter -->
+<div class="text-center mb-4">
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('customer_menu', category='all') }}" 
+           class="btn btn-outline-primary {{ 'active' if current_category == 'all' }}">All</a>
+        {% for category in categories %}
+            <a href="{{ url_for('customer_menu', category=category) }}" 
+               class="btn btn-outline-primary {{ 'active' if current_category == category }}">{{ category }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Menu Items -->
+<div class="row">
+    {% for item in menu_items %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 menu-card">
+            <div class="card-body">
+                <h5 class="card-title">{{ item.name }}</h5>
+                <p class="card-text text-muted">{{ item.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong class="text-success h5">${{ "%.2f"|format(item.price) }}</strong>
+                        <br>
+                        <small class="text-muted">{{ item.category }}</small>
+                    </div>
+                    <a href="{{ url_for('place_order') }}#item-{{ item.id }}" class="btn btn-primary">
+                        <i class="fas fa-cart-plus"></i> Add to Order
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not menu_items %}
+<div class="text-center py-5">
+    <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+    <h4 class="text-muted">No items available</h4>
+    <p class="text-muted">{{ 'No items in this category' if current_category != 'all' else 'Menu is being updated' }}</p>
+</div>
+{% endif %}
+
+<div class="text-center mt-5">
+    <a href="{{ url_for('place_order') }}" class="btn btn-success btn-lg">
+        <i class="fas fa-shopping-cart"></i> Place Your Order
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Café Management System{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5 mb-5">
+    <div class="container">
+        <h1 class="display-4 mb-4">
+            <i class="fas fa-coffee text-primary"></i>
+            Welcome to Our Café
+        </h1>
+        <p class="lead mb-4">Delicious coffee, fresh pastries, and great food - all in one place!</p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('customer_menu') }}" class="btn btn-primary btn-lg me-md-2">
+                        <i class="fas fa-book-open"></i> View Menu
+                    </a>
+                    <a href="{{ url_for('place_order') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-shopping-cart"></i> Place Order
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Browse Menu</h5>
+                <p class="card-text">Explore our delicious selection of coffee, tea, pastries, and meals.</p>
+                <a href="{{ url_for('customer_menu') }}" class="btn btn-outline-primary">View Menu</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-shopping-cart fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Place Order</h5>
+                <p class="card-text">Select your favorite items and place your order quickly and easily.</p>
+                <a href="{{ url_for('place_order') }}" class="btn btn-outline-success">Order Now</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-search fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Track Order</h5>
+                <p class="card-text">Check the status of your order and estimated completion time.</p>
+                <a href="{{ url_for('track_order') }}" class="btn btn-outline-info">Track Order</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h4><i class="fas fa-clock"></i> Opening Hours</h4>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <strong>Monday - Friday:</strong> 7:00 AM - 8:00 PM
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Saturday - Sunday:</strong> 8:00 AM - 9:00 PM
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
